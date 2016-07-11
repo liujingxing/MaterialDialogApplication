@@ -4,13 +4,13 @@
 
 效果图
 
-![image](https://github.com/liujingxing/MaterialDialog/blob/master/screenRecord/screen.gif)
+![image](https://github.com/liujingxing/MaterialDialogApplication/tree/master/screenRecord/screen.gif)
 
-Gradle引用方法
+<!--Gradle引用方法-->
 
-    dependencies {
-       compile 'com.common.design:Library:1.0.0'
-    }
+<!--    dependencies {-->
+<!--       compile 'com.common.design:Library:1.0.0'-->
+<!--    }-->
 
 
 
