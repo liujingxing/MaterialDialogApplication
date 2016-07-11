@@ -4,7 +4,7 @@
 
 效果图
 
-![image](https://github.com/liujingxing/MaterialDialogApplication/tree/master/screenRecord/screen.gif)
+![image](https://github.com/liujingxing/MaterialDialogApplication/blob/master/screenRecord/screen.gif)
 
 <!--Gradle引用方法-->
 
