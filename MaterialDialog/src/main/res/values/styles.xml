@@ -1,0 +1,30 @@
+<resources>
+
+    <style name="MaterialDialogStyle" parent="android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <!--背景色-->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--边框-->
+        <item name="android:windowFrame">@null</item>
+        <!--是否悬浮-->
+        <item name="android:windowIsFloating">true</item>
+        <!--背景是否昏暗-->
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowAnimationStyle">@style/MaterialDialogAnimation</item>
+    </style>
+
+    <style name="MaterialDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/material_dialog_in_anim</item>
+        <item name="android:windowExitAnimation">@anim/material_dialog_out_anim</item>
+    </style>
+
+    <style name="ActionButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/action_button_height</item>
+        <item name="android:minWidth">@dimen/action_button_min_width</item>
+        <item name="android:paddingLeft">@dimen/action_button_padding_horizontal</item>
+        <item name="android:paddingRight">@dimen/action_button_padding_horizontal</item>
+        <item name="android:background">@drawable/button</item>
+        <item name="android:textSize">@dimen/action_button_text_size</item>
+    </style>
+</resources>

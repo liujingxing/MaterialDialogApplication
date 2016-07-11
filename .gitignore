@@ -1,0 +1,14 @@
+*.gradle
+
+*.idea
+
+build
+
+.gradle/2.10/taskArtifacts/cache.properties
+
+.gradle/2.10/taskArtifacts/cache.properties.lock
+
+*.iml
+
+
+local.properties
