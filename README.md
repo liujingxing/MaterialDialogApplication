@@ -6,11 +6,11 @@
 
 ![image](https://github.com/liujingxing/MaterialDialogApplication/blob/master/screenRecord/screen.gif)
 
-<!--Gradle引用方法-->
+Gradle引用方法
 
-<!--    dependencies {-->
-<!--       compile 'com.common.design:Library:1.0.0'-->
-<!--    }-->
+    dependencies {
+       compile 'com.android.design:MaterialDialog:1.0.0'
+    }
 
 
 
