@@ -272,8 +272,9 @@ public class MaterialDialog extends Dialog {
                             checkBox = (SmoothCheckBox) view.findViewById(R.id.single_choice_item_checkBox);
                             checkBox.setChecked(true, true);
                         }
-                        if (listener == null) return;
-                        ((OnClickListener) listener).onClick(mMaterialDialog, position);
+                        if (listener == null || !((OnClickListener) listener).onClick(mMaterialDialog, position)) {
+                            mMaterialDialog.dismiss();
+                        }
                     } else if (adapter instanceof ListItemAdapter) {
                         if (listener == null || !((OnClickListener) listener).onClick(mMaterialDialog, position)) {
                             mMaterialDialog.dismiss();
