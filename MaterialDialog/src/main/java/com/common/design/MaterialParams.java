@@ -3,6 +3,9 @@ package com.common.design;
 import android.content.Context;
 import android.view.WindowManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author liujingxing  on 16/4/20.
  */
@@ -24,12 +27,18 @@ class MaterialParams {
     int width;
     int height;
 
+    int mSingleChoiceItem;
+    List<Integer> mMultiChoiceItems;
+
     MaterialDialog.OnClickListener mPositiveListener, mNegativeListener, mNeutralListener;
+    MaterialDialog.OnSCResultListener mOnSCResultListener;
+    MaterialDialog.OnMCResultListener mOnMCResultListener;
 
     MaterialParams(Context context) {
         mContext = context;
         width = (int) (getScreenWidth() * 0.85f);
         height = WindowManager.LayoutParams.WRAP_CONTENT;
+        mMultiChoiceItems = new ArrayList<>();
     }
 
     CharSequence getTitle() {
@@ -93,6 +102,22 @@ class MaterialParams {
     void setPositive(CharSequence positiveText) {
         mPositiveText = positiveText;
         mPositiveResId = -1;
+    }
+
+    MaterialDialog.BaseListener getPositiveListener() {
+        if (mOnSCResultListener != null) return mOnSCResultListener;
+        if (mOnMCResultListener != null) return mOnMCResultListener;
+        return mPositiveListener;
+    }
+
+    void setPositiveListener(MaterialDialog.BaseListener listener) {
+        if (listener instanceof MaterialDialog.OnSCResultListener) {
+            mOnSCResultListener = (MaterialDialog.OnSCResultListener) listener;
+        } else if (listener instanceof MaterialDialog.OnMCResultListener) {
+            mOnMCResultListener = (MaterialDialog.OnMCResultListener) listener;
+        } else {
+            mPositiveListener = (MaterialDialog.OnClickListener) listener;
+        }
     }
 
     CharSequence getNeutralText() {

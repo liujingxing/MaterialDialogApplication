@@ -54,15 +54,62 @@ public class MaterialDialog extends Dialog {
         listView.setLayoutParams(params);
     }
 
-    private interface BaseListener {
+    interface BaseListener {
     }
 
+    /**
+     * 可用于ListView点击item的监听，以及mPositiveButton，mNegativeButton，mNeutralButton3个按钮的监听
+     */
     public interface OnClickListener extends BaseListener {
+        /**
+         * @param dialog MaterialDialog接口对象
+         * @param which  作为ListView中item的监听方法时,代表单击item的位置,即position
+         *               作为mPositiveButton，mNegativeButton，mNeutralButton3个按钮的监听时,代表按钮的类型,即代表哪一个按钮
+         * @return true 代表拦截后续的操作,即Dialog不会消失;反之,Dialog消失
+         */
         boolean onClick(DialogInterface dialog, int which);
     }
 
+    /**
+     * 单选框最后选择结果监听器
+     */
+    public interface OnSCResultListener extends BaseListener {
+        /**
+         * 单选框最后选择结果监听方法
+         *
+         * @param dialog    MaterialDialog接口对象
+         * @param checkItem 单选框为true的位置,即选中的item的position
+         * @return true 代表自己拦截后续的操作，即Dialog不会消失，反之，Dialog消失
+         */
+        boolean onClick(DialogInterface dialog, int checkItem);
+    }
+
+    /**
+     * 复选框最后选择结果监听器
+     */
+    public interface OnMCResultListener extends BaseListener {
+        /**
+         * 复选框最后选择结果监听方法
+         *
+         * @param dialog     MaterialDialog接口对象
+         * @param checkItems 所有为true的复选框的位置的集合
+         * @return true 代表自己拦截后续的操作，即Dialog不会消失，反之，Dialog消失
+         */
+        boolean onClick(DialogInterface dialog, List<Integer> checkItems);
+    }
+
+    /**
+     * 复选框单击item时的监听器
+     */
     public interface OnMultiChoiceClickListener extends BaseListener {
-        void onClick(DialogInterface dialog, int which, boolean isChecked);
+        /**
+         * 复选框单击item时的监听方法
+         *
+         * @param dialog    MaterialDialog接口对象
+         * @param position  单击item的位置
+         * @param isChecked 单击item后复选框的状态
+         */
+        void onClick(DialogInterface dialog, int position, boolean isChecked);
     }
 
     public static class Builder {
@@ -131,15 +178,37 @@ public class MaterialDialog extends Dialog {
             return setPositiveButton(R.string.confirm, listener);
         }
 
+        /**
+         * 如果想知道多选框最后的选择结果,调用本方法传入一个监听器即可,实际上是一个变相的PositiveButton,只是传的监听器不一样
+         *
+         * @param listener 多选框最后结果监听器
+         */
+        public Builder setMCResultButton(OnMCResultListener listener) {
+            P.setPositive(R.string.confirm);
+            P.setPositiveListener(listener);
+            return this;
+        }
+
+        /**
+         * 如果想知道单选框最后的选择结果,调用本方法传入一个监听器即可,实际上是一个变相的PositiveButton,只是传的监听器不一样
+         *
+         * @param listener 单选框最后结果监听器
+         */
+        public Builder setScResultButton(OnSCResultListener listener) {
+            P.setPositive(R.string.confirm);
+            P.setPositiveListener(listener);
+            return this;
+        }
+
         public Builder setPositiveButton(int resId, OnClickListener listener) {
             P.setPositive(resId);
-            P.mPositiveListener = listener;
+            P.setPositiveListener(listener);
             return this;
         }
 
         public Builder setPositiveButton(CharSequence text, OnClickListener listener) {
             P.setPositive(text);
-            P.mPositiveListener = listener;
+            P.setPositiveListener(listener);
             return this;
         }
 
@@ -206,17 +275,16 @@ public class MaterialDialog extends Dialog {
         }
 
         public Builder setSingleChoiceItems(List<? extends CharSequence> items, int checkItem, OnClickListener listener) {
-            SingleChoiceAdapter singleChoiceAdapter = new SingleChoiceAdapter(P.getContext(), items, checkItem);
+            SingleChoiceAdapter singleChoiceAdapter = new SingleChoiceAdapter(P, items, checkItem);
             setAdapter(singleChoiceAdapter, listener);
             return this;
         }
-
 
         public Builder setMultiChoiceItems(int itemsId, OnMultiChoiceClickListener listener) {
             return setMultiChoiceItems(itemsId, null, listener);
         }
 
-        public Builder setMultiChoiceItems(int itemsId, boolean[] checkedItems, OnMultiChoiceClickListener listener) {
+        public Builder setMultiChoiceItems(int itemsId, int[] checkedItems, OnMultiChoiceClickListener listener) {
             return setMultiChoiceItems(P.getContext().getResources().getStringArray(itemsId), checkedItems, listener);
         }
 
@@ -224,7 +292,7 @@ public class MaterialDialog extends Dialog {
             return setMultiChoiceItems(items, null, listener);
         }
 
-        public Builder setMultiChoiceItems(CharSequence[] items, boolean[] checkedItems, OnMultiChoiceClickListener listener) {
+        public Builder setMultiChoiceItems(CharSequence[] items, int[] checkedItems, OnMultiChoiceClickListener listener) {
             return setMultiChoiceItems(Arrays.asList(items), checkedItems, listener);
         }
 
@@ -232,8 +300,8 @@ public class MaterialDialog extends Dialog {
             return setMultiChoiceItems(items, null, listener);
         }
 
-        public Builder setMultiChoiceItems(List<? extends CharSequence> items, boolean[] checkedItems, OnMultiChoiceClickListener listener) {
-            MultiChoiceAdapter multiChoiceAdapter = new MultiChoiceAdapter(P.getContext(), items, checkedItems);
+        public Builder setMultiChoiceItems(List<? extends CharSequence> items, int[] checkedItems, OnMultiChoiceClickListener listener) {
+            MultiChoiceAdapter multiChoiceAdapter = new MultiChoiceAdapter(P, items, checkedItems);
             setAdapter(multiChoiceAdapter, listener);
             return this;
         }
@@ -251,28 +319,13 @@ public class MaterialDialog extends Dialog {
                     if (adapter instanceof MultiChoiceAdapter) {
                         SmoothCheckBox checkBox = (SmoothCheckBox) view.findViewById(R.id.multi_choice_item_checkBox);
                         checkBox.toggle(true);
+                        ((MultiChoiceAdapter) adapter).refreshData(position);
                         if (listener == null) return;
                         ((OnMultiChoiceClickListener) listener).onClick(mMaterialDialog, position, checkBox.isChecked());
                     } else if (adapter instanceof SingleChoiceAdapter) {
-                        boolean isSet = false;
-                        SmoothCheckBox checkBox;
-                        for (int i = 0; i < parent.getChildCount(); i++) {
-                            View v = parent.getChildAt(i);
-                            checkBox = (SmoothCheckBox) v.findViewById(R.id.single_choice_item_checkBox);
-                            boolean isCheck = checkBox.isChecked();
-                            if (i == position && !isCheck) {
-                                checkBox.setChecked(true, true);
-                                isSet = true;
-                            } else if (i != position && isCheck) {//将上次选中的置为false
-                                checkBox.setChecked(false, true);
-                                break;
-                            }
-                        }
-                        if (!isSet) {
-                            checkBox = (SmoothCheckBox) view.findViewById(R.id.single_choice_item_checkBox);
-                            checkBox.setChecked(true, true);
-                        }
-                        if (listener == null || !((OnClickListener) listener).onClick(mMaterialDialog, position)) {
+                        ((SingleChoiceAdapter) adapter).refreshData(parent, view, position);
+                        if (listener == null) return;
+                        if (!((OnClickListener) listener).onClick(mMaterialDialog, position)) {
                             mMaterialDialog.dismiss();
                         }
                     } else if (adapter instanceof ListItemAdapter) {
@@ -389,7 +442,7 @@ public class MaterialDialog extends Dialog {
 
             setText(P.getTitle(), mTitleView);
             setText(P.getMessage(), mMessageView);
-            setText(P.getPositiveText(), mPositiveButton, P.mPositiveListener);
+            setText(P.getPositiveText(), mPositiveButton, P.getPositiveListener());
             setText(P.getNegativeText(), mNegativeButton, P.mNegativeListener);
             setText(P.getNeutralText(), mNeutralButton, P.mNeutralListener);
 
@@ -423,23 +476,38 @@ public class MaterialDialog extends Dialog {
             setText(text, textView, null);
         }
 
-        private void setText(CharSequence text, TextView textView, final OnClickListener onClickListener) {
+        private void setText(CharSequence text, TextView textView, final BaseListener listener) {
             if (TextUtils.isEmpty(text)) {
                 textView.setVisibility(View.GONE);
-            } else {
-                textView.setText(text);
-                if (textView instanceof Button) {
-                    textView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            int which = v == mPositiveButton ? DialogInterface.BUTTON_POSITIVE :
-                                    v == mNegativeButton ? DialogInterface.BUTTON_NEGATIVE : DialogInterface.BUTTON_NEUTRAL;
-                            if (onClickListener == null || !onClickListener.onClick(mMaterialDialog, which))
-                                mMaterialDialog.dismiss();
-                        }
-                    });
-                }
+                return;
             }
+            textView.setText(text);
+            if (!(textView instanceof Button)) return;
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int which;
+                    if (v == mPositiveButton) {
+                        which = DialogInterface.BUTTON_POSITIVE;
+                    } else if (v == mNegativeButton) {
+                        which = DialogInterface.BUTTON_NEGATIVE;
+                    } else {
+                        which = DialogInterface.BUTTON_NEUTRAL;
+                    }
+                    if (listener == null) mMaterialDialog.dismiss();
+                    boolean isIntercept = false;
+                    if (listener instanceof OnSCResultListener) {
+                        isIntercept = ((OnSCResultListener) listener).onClick(mMaterialDialog, P.mSingleChoiceItem);
+                    } else if (listener instanceof OnMCResultListener) {
+                        isIntercept = ((OnMCResultListener) listener).onClick(mMaterialDialog, P.mMultiChoiceItems);
+                    } else if (listener instanceof OnClickListener) {
+                        isIntercept = ((OnClickListener) listener).onClick(mMaterialDialog, which);
+                    }
+                    if (!isIntercept) {
+                        mMaterialDialog.dismiss();
+                    }
+                }
+            });
         }
     }
 }

@@ -21,17 +21,23 @@ class MultiChoiceAdapter extends BaseAdapter {
 
     private boolean[] mCheckItems;
 
+    private MaterialParams P;
 
-    public MultiChoiceAdapter(Context context, CharSequence[] items, boolean[] checkedItems) {
-        this(context, Arrays.asList(items), checkedItems);
+
+    public MultiChoiceAdapter(MaterialParams p, CharSequence[] items, int[] checkedItems) {
+        this(p, Arrays.asList(items), checkedItems);
     }
 
-    public MultiChoiceAdapter(Context context, List<? extends CharSequence> items, boolean[] checkedItems) {
-        mContext = context;
+    public MultiChoiceAdapter(MaterialParams p, List<? extends CharSequence> items, int[] checkedItems) {
+        this.P = p;
+        mContext = p.getContext();
         mDataList = items;
         mCheckItems = new boolean[items.size()];
-        if (checkedItems != null && checkedItems.length > 0) {
-            System.arraycopy(checkedItems, 0, mCheckItems, 0, checkedItems.length);
+        if (checkedItems == null || checkedItems.length == 0) return;
+        for (Integer position : checkedItems) {
+            if (position >= mCheckItems.length) continue;
+            p.mMultiChoiceItems.add(position);
+            mCheckItems[position] = true;
         }
     }
 
@@ -64,6 +70,16 @@ class MultiChoiceAdapter extends BaseAdapter {
         holder.checkBox.setChecked(mCheckItems[position]);
         holder.tvTitle.setText(mDataList.get(position));
         return convertView;
+    }
+
+    public void refreshData(int position) {
+        if (P.mMultiChoiceItems.contains(position)) {
+            mCheckItems[position] = false;
+            P.mMultiChoiceItems.remove((Integer) position);
+        } else {
+            P.mMultiChoiceItems.add(position);
+            mCheckItems[position] = true;
+        }
     }
 
     class ViewHolder {

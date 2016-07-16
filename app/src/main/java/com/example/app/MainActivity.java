@@ -16,14 +16,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.hit:
                 new MaterialDialog.Builder(this)
                         .setTitle("提示")
                         .setMessage("仿原生AlertDialog样式的对话框,目的在于解决原生的在Android 5.0下样式丑陋问题")
-                        .setPositiveButton(null)
+                        .setPositiveButton(new MaterialDialog.OnClickListener() {
+                            @Override
+                            public boolean onClick(DialogInterface dialog, int which) {
+                                return false;
+                            }
+                        })
                         .setNeutralButton("不再提示", null)
                         .setNegativeButton(null).show();
                 break;
@@ -56,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 final String[] item1 = {"2016/01", "2016/02", "2016/03", "2016/04", "2016/05", "2016/06", "2016/07"};
                 new MaterialDialog.Builder(this)
                         .setTitle("多选框")
-                        .setMultiChoiceItems(item1, new boolean[]{false, true, false, true}, new MaterialDialog.OnMultiChoiceClickListener() {
+                        .setMultiChoiceItems(item1, new int[]{1, 2, 3}, new MaterialDialog.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                 Toast.makeText(MainActivity.this, which + "--" + isChecked, Toast.LENGTH_SHORT).show();
@@ -67,9 +71,5 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
         }
-    }
-
-    public void show(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }
