@@ -194,7 +194,7 @@ public class MaterialDialog extends Dialog {
          *
          * @param listener 单选框最后结果监听器
          */
-        public Builder setScResultButton(OnSCResultListener listener) {
+        public Builder setSCResultButton(OnSCResultListener listener) {
             P.setPositive(R.string.confirm);
             P.setPositiveListener(listener);
             return this;
