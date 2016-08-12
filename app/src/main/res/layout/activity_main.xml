@@ -72,7 +72,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:text="男"/>
+            app:text="默认属性"/>
 
         <com.common.design.CheckBox
             android:layout_width="0dp"
@@ -82,7 +82,7 @@
             app:colorUnchecked="#AAAAAA"
             app:middlePadding="20dp"
             app:shape="square"
-            app:text="女"
+            app:text="自定义属性"
             app:textColor="#0000FF"
             app:textSize="17sp"/>
     </LinearLayout>
