@@ -21,8 +21,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         checkGroup = (CheckGroup) findViewById(R.id.checkGroup);
-
-
         OptionWrapper optionWrapper = new OptionWrapper(true);
         optionWrapper.setOptions("数学", "语文", "英语", "物理", "化学");
         optionWrapper.setChecked(1, 2, 4);

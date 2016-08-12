@@ -17,6 +17,8 @@ import android.widget.TextView;
  */
 public class CheckBox extends LinearLayout {
 
+    protected final String NAME_SPACE = "http://schemas.android.com/apk/res/android";
+
     public int mDefaultSize;
 
     private TextView mTextView;
@@ -39,6 +41,9 @@ public class CheckBox extends LinearLayout {
 
 
     private void initView(Context context, AttributeSet attrs) {
+        boolean clickable = attrs.getAttributeBooleanValue(NAME_SPACE, "clickable", true);
+        setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight(), getPaddingBottom());
+        setClickable(clickable);
 
         TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.CheckBox);
         String text = ta.getString(R.styleable.CheckBox_text);
@@ -70,9 +75,7 @@ public class CheckBox extends LinearLayout {
                 mCheckView.toggle(true);
             }
         });
-
     }
-
 
     @Override
     public void setPadding(int left, int top, int right, int bottom) {
