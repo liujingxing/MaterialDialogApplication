@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.common.design.CheckGroup;
 import com.common.design.MaterialDialog;
+import com.common.design.entity.Option;
 import com.common.design.entity.OptionWrapper;
 
 import java.util.List;
@@ -22,15 +23,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mCheckGroup = (CheckGroup) findViewById(R.id.checkGroup);
-        OptionWrapper optionWrapper = new OptionWrapper();
+        OptionWrapper optionWrapper = new OptionWrapper(true);//Option的封装类
         optionWrapper.setOptions("数学", "语文", "英语", "物理", "化学");
-        optionWrapper.setChecked(1, 2, 4);
+        optionWrapper.setChecked(1, 2, 4);//默认选中position为1 2 4的选项
+        mCheckGroup.setShape(CheckGroup.SQUARE);//画方形,圆形传:CheckGroup.CIRCLE
         mCheckGroup.setOptionWrapper(optionWrapper);
     }
 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.look:
+                List<Option> checked = mCheckGroup.getChecked();
                 List<CharSequence> checkedText = mCheckGroup.getCheckedText();
                 StringBuilder builder = new StringBuilder();
                 for (CharSequence charSequence : checkedText) {

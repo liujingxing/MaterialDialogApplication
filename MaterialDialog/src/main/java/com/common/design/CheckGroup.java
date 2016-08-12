@@ -193,7 +193,7 @@ public class CheckGroup extends ListView implements AdapterView.OnItemClickListe
             ViewHolder holder;
             if (convertView == null) {
                 convertView = LayoutInflater.from(mContext).inflate(R.layout.checkbox, parent, false);
-                convertView.setPadding(leftPadding,convertView.getPaddingTop(),convertView.getPaddingRight(),convertView.getPaddingBottom());
+                convertView.setPadding(leftPadding, convertView.getPaddingTop(), convertView.getPaddingRight(), convertView.getPaddingBottom());
                 holder = new ViewHolder(convertView);
                 holder.checkBox.setShape(mShape);
                 convertView.setTag(holder);
@@ -223,9 +223,9 @@ public class CheckGroup extends ListView implements AdapterView.OnItemClickListe
     /**
      * 外界调用的item监听器
      */
-    public OnChangeListener mOnChangeListener;
+    private OnChangeListener mOnChangeListener;
 
-    interface OnChangeListener {
+    public interface OnChangeListener {
         void onChange(AdapterView<?> parent, View view, int position);
     }
 
