@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.common.design.CheckGroup;
@@ -13,23 +14,33 @@ import com.common.design.entity.OptionWrapper;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    CheckGroup checkGroup;
+    CheckGroup mCheckGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        checkGroup = (CheckGroup) findViewById(R.id.checkGroup);
-        OptionWrapper optionWrapper = new OptionWrapper(true);
+        mCheckGroup = (CheckGroup) findViewById(R.id.checkGroup);
+        OptionWrapper optionWrapper = new OptionWrapper();
         optionWrapper.setOptions("数学", "语文", "英语", "物理", "化学");
         optionWrapper.setChecked(1, 2, 4);
-        checkGroup.setOptionWrapper(optionWrapper);
-
+        mCheckGroup.setOptionWrapper(optionWrapper);
     }
 
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.look:
+                List<CharSequence> checkedText = mCheckGroup.getCheckedText();
+                StringBuilder builder = new StringBuilder();
+                for (CharSequence charSequence : checkedText) {
+                    builder.append(charSequence).append("、");
+                }
+                if (builder.length() > 0)
+                    builder.deleteCharAt(builder.length() - 1);
+                ((TextView) findViewById(R.id.result)).setText(builder);
+                break;
+
             case R.id.hit:
                 new MaterialDialog.Builder(this)
                         .setTitle("提示")
