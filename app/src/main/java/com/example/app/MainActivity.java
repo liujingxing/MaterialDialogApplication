@@ -6,14 +6,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
+import com.common.design.CheckGroup;
 import com.common.design.MaterialDialog;
+import com.common.design.entity.OptionWrapper;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    CheckGroup checkGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkGroup = (CheckGroup) findViewById(R.id.checkGroup);
+
+
+        OptionWrapper optionWrapper = new OptionWrapper(true);
+        optionWrapper.setOptions("数学", "语文", "英语", "物理", "化学");
+        optionWrapper.setChecked(1, 2, 4);
+        checkGroup.setOptionWrapper(optionWrapper);
+
     }
 
     public void onClick(View v) {
@@ -65,7 +79,13 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                 Toast.makeText(MainActivity.this, which + "--" + isChecked, Toast.LENGTH_SHORT).show();
                             }
-                        }).setPositiveButton("确定", null)
+                        })
+                        .setMCResultButton(new MaterialDialog.OnMCResultListener() {
+                            @Override
+                            public boolean onClick(DialogInterface dialog, List<Integer> checkItems) {
+                                return false;
+                            }
+                        })
                         .setNegativeButton("取消", null)
                         .setNeutralButton("不在提示", null).show();
                 break;

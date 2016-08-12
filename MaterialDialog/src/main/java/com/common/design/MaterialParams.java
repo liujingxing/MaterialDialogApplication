@@ -3,42 +3,38 @@ package com.common.design;
 import android.content.Context;
 import android.view.WindowManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
+ * 设置对话框的一些参数
+ *
  * @author liujingxing  on 16/4/20.
  */
 class MaterialParams {
 
     Context mContext;
-    int mTitleResId = -1;
-    CharSequence mTitle;
-    int mMessageResId = -1;
-    CharSequence mMessage;
+    int mTitleResId = -1;//标题资源id
+    CharSequence mTitle;//标题
+    int mMessageResId = -1;//内容资源id
+    CharSequence mMessage;//内容
 
-    int mPositiveResId = -1;
-    CharSequence mPositiveText;
-    int mNegativeResId = -1;
-    CharSequence mNegativeText;
-    int mNeutralResId = -1;
-    CharSequence mNeutralText;
+    int mPositiveResId = -1;//确定按钮文本资源id
+    CharSequence mPositiveText;//确定按钮文本
+    int mNegativeResId = -1;//取消按钮文本资源id
+    CharSequence mNegativeText;//取消按钮文本
+    int mNeutralResId = -1;//中间按钮文本资源id
+    CharSequence mNeutralText;//中间按钮文本
 
-    int width;
-    int height;
+    int width;//对话框宽度
+    int height;//对话框高度
 
-    int mSingleChoiceItem;
-    List<Integer> mMultiChoiceItems;
-
+    //确定、取消、中间按钮单击监听器
     MaterialDialog.OnClickListener mPositiveListener, mNegativeListener, mNeutralListener;
-    MaterialDialog.OnSCResultListener mOnSCResultListener;
-    MaterialDialog.OnMCResultListener mOnMCResultListener;
+    MaterialDialog.OnSCResultListener mOnSCResultListener;//单选对话框确定按钮监听器，会返回最终的选择结果
+    MaterialDialog.OnMCResultListener mOnMCResultListener;//多选对话框确定按钮监听器，会返回最终的选择结果
 
     MaterialParams(Context context) {
         mContext = context;
         width = (int) (getScreenWidth() * 0.85f);
         height = WindowManager.LayoutParams.WRAP_CONTENT;
-        mMultiChoiceItems = new ArrayList<>();
     }
 
     CharSequence getTitle() {

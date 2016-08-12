@@ -13,13 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.common.design.entity.OptionWrapper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,22 +38,6 @@ public class MaterialDialog extends Dialog {
         super(context, theme);
     }
 
-    private static void setListViewHeightBasedOnChildren(ListView listView) {
-        ListAdapter listAdapter = listView.getAdapter();
-        if (listAdapter == null) {
-            return;
-        }
-        int totalHeight = 0;
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(0, 0);
-            totalHeight += listItem.getMeasuredHeight();
-        }
-
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-        listView.setLayoutParams(params);
-    }
 
     interface BaseListener {
     }
@@ -121,7 +106,7 @@ public class MaterialDialog extends Dialog {
 
         private LinearLayout mMaterialLayout;
         private TextView mTitleView;
-        //        private ScrollView mScrollContentLayout;
+
         private LinearLayout mBottomLayout;
         private Button mPositiveButton;
         private Button mNegativeButton;
@@ -143,7 +128,6 @@ public class MaterialDialog extends Dialog {
             mMaterialLayout = (LinearLayout) mContentView.findViewById(R.id.ll_material_layout);
             mTitleView = (TextView) mContentView.findViewById(R.id.tv_title);
 
-//            mScrollContentLayout = (ScrollView) mContentView.findViewById(R.id.content_scroll_layout);
             mContentLayout = (LinearLayout) mContentView.findViewById(R.id.ll_content_layout);
             mMessageView = (TextView) mContentLayout.findViewById(R.id.tv_message);
 
@@ -274,9 +258,28 @@ public class MaterialDialog extends Dialog {
             return setSingleChoiceItems(items, 0, listener);
         }
 
-        public Builder setSingleChoiceItems(List<? extends CharSequence> items, int checkItem, OnClickListener listener) {
-            SingleChoiceAdapter singleChoiceAdapter = new SingleChoiceAdapter(P, items, checkItem);
-            setAdapter(singleChoiceAdapter, listener);
+        /**
+         * 以上重载方法最终都会调用本方法实现单选框
+         *
+         * @param items     选项集合
+         * @param checkItem 默认选中的item的position
+         * @param listener  监听器
+         */
+        public Builder setSingleChoiceItems(List<? extends CharSequence> items, int checkItem, final OnClickListener listener) {
+            OptionWrapper optionWrapper = new OptionWrapper(true);
+            optionWrapper.setOptions(items);
+            optionWrapper.setChecked(checkItem);
+            CheckGroup checkGroup = new CheckGroup(P.getContext());
+            checkGroup.setLeftPadding(P.getContext().getResources().getDimensionPixelOffset(R.dimen.content_title_paddingLeft));
+            checkGroup.setOptionWrapper(optionWrapper);
+            checkGroup.setOnChangeListener(new CheckGroup.OnChangeListener() {
+                @Override
+                public void onChange(AdapterView<?> parent, View view, int position) {
+                    if (listener == null) return;
+                    listener.onClick(mMaterialDialog, position);
+                }
+            });
+            setContentView(checkGroup, false);
             return this;
         }
 
@@ -300,38 +303,40 @@ public class MaterialDialog extends Dialog {
             return setMultiChoiceItems(items, null, listener);
         }
 
-        public Builder setMultiChoiceItems(List<? extends CharSequence> items, int[] checkedItems, OnMultiChoiceClickListener listener) {
-            MultiChoiceAdapter multiChoiceAdapter = new MultiChoiceAdapter(P, items, checkedItems);
-            setAdapter(multiChoiceAdapter, listener);
+        /**
+         * 以上重载方法最终都会调用本方法实现多选框功能
+         *
+         * @param items        选项集合
+         * @param checkedItems 默认选中的item的position集合
+         * @param listener     监听器
+         */
+        public Builder setMultiChoiceItems(List<? extends CharSequence> items, int[] checkedItems, final OnMultiChoiceClickListener listener) {
+            OptionWrapper optionWrapper = new OptionWrapper();
+            optionWrapper.setOptions(items);
+            optionWrapper.setChecked(Utils.getArray(checkedItems));
+            CheckGroup checkGroup = new CheckGroup(P.getContext());
+            checkGroup.setLeftPadding(P.getContext().getResources().getDimensionPixelOffset(R.dimen.content_title_paddingLeft));
+            checkGroup.setOptionWrapper(optionWrapper);
+            checkGroup.setShape(CheckGroup.SQUARE);
+            checkGroup.setOnChangeListener(new CheckGroup.OnChangeListener() {
+                @Override
+                public void onChange(AdapterView<?> parent, View view, int position) {
+                    if (listener == null) return;
+                    CheckBox checkBox = (CheckBox) view;
+                    listener.onClick(mMaterialDialog, position, checkBox.isChecked());
+                }
+            });
+            setContentView(checkGroup, false);
             return this;
         }
 
-        public Builder setAdapter(ListAdapter adapter, final OnClickListener listener) {
-            return setAdapter(adapter, (BaseListener) listener);
-        }
-
-        private Builder setAdapter(ListAdapter listAdapter, final BaseListener listener) {
+        private Builder setAdapter(ListAdapter listAdapter, final OnClickListener listener) {
             ListView listView = (ListView) LayoutInflater.from(P.getContext()).inflate(R.layout.material_dialog_listview_layout, null);
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Adapter adapter = parent.getAdapter();
-                    if (adapter instanceof MultiChoiceAdapter) {
-                        SmoothCheckBox checkBox = (SmoothCheckBox) view.findViewById(R.id.multi_choice_item_checkBox);
-                        checkBox.toggle(true);
-                        ((MultiChoiceAdapter) adapter).refreshData(position);
-                        if (listener == null) return;
-                        ((OnMultiChoiceClickListener) listener).onClick(mMaterialDialog, position, checkBox.isChecked());
-                    } else if (adapter instanceof SingleChoiceAdapter) {
-                        ((SingleChoiceAdapter) adapter).refreshData(parent, view, position);
-                        if (listener == null) return;
-                        if (!((OnClickListener) listener).onClick(mMaterialDialog, position)) {
-                            mMaterialDialog.dismiss();
-                        }
-                    } else if (adapter instanceof ListItemAdapter) {
-                        if (listener == null || !((OnClickListener) listener).onClick(mMaterialDialog, position)) {
-                            mMaterialDialog.dismiss();
-                        }
+                    if (listener == null || !listener.onClick(mMaterialDialog, position)) {
+                        mMaterialDialog.dismiss();
                     }
                 }
             });
@@ -346,7 +351,6 @@ public class MaterialDialog extends Dialog {
             contentView.setLayoutParams(layoutParams);
             if (!needSpace) {
                 mContentLayout.setPadding(0, 0, 0, 0);
-//                setListViewHeightBasedOnChildren((ListView) contentView);
             }
             if (mContentLayout != null) {
                 mContentLayout.removeAllViews();
@@ -494,14 +498,23 @@ public class MaterialDialog extends Dialog {
                     } else {
                         which = DialogInterface.BUTTON_NEUTRAL;
                     }
-                    if (listener == null) mMaterialDialog.dismiss();
+                    if (listener == null) {
+                        mMaterialDialog.dismiss();
+                        return;
+                    }
                     boolean isIntercept = false;
-                    if (listener instanceof OnSCResultListener) {
-                        isIntercept = ((OnSCResultListener) listener).onClick(mMaterialDialog, P.mSingleChoiceItem);
-                    } else if (listener instanceof OnMCResultListener) {
-                        isIntercept = ((OnMCResultListener) listener).onClick(mMaterialDialog, P.mMultiChoiceItems);
-                    } else if (listener instanceof OnClickListener) {
+                    if (listener instanceof OnClickListener) {
                         isIntercept = ((OnClickListener) listener).onClick(mMaterialDialog, which);
+                    } else {
+                        View childAt = mContentLayout.getChildAt(0);
+                        if (childAt instanceof CheckGroup) {
+                            CheckGroup checkGroup = (CheckGroup) childAt;
+                            if (listener instanceof OnSCResultListener) {
+                                isIntercept = ((OnSCResultListener) listener).onClick(mMaterialDialog, checkGroup.getCheckedIndex().get(0));
+                            } else if (listener instanceof OnMCResultListener) {
+                                isIntercept = ((OnMCResultListener) listener).onClick(mMaterialDialog, checkGroup.getCheckedIndex());
+                            }
+                        }
                     }
                     if (!isIntercept) {
                         mMaterialDialog.dismiss();
