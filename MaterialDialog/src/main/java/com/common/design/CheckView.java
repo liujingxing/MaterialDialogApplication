@@ -16,6 +16,7 @@
 
 package com.common.design;
 
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -33,7 +34,6 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Checkable;
 
-import com.nineoldandroids.animation.ValueAnimator;
 
 /**
  * 本视图仅仅是一个框,不带有标题功能
