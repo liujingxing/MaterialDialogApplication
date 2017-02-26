@@ -9,7 +9,7 @@
 Gradle引用方法
 
     dependencies {
-       compile 'com.android.design:MaterialDialog:1.1.2'
+       compile 'com.android.design:MaterialDialog:1.1.3'
     }
 
 
