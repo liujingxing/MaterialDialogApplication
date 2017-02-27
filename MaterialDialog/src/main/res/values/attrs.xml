@@ -6,6 +6,7 @@
         <attr name="middlePadding" format="dimension|integer"/><!--单选/多选与文本之间的距离-->
         <attr name="duration" format="integer"/><!--动画时长-->
         <attr name="strokeWidth" format="dimension"/><!--选中时，勾的宽度以及未选中时描边的宽度-->
+        <attr name="radius" format="dimension"/><!--矩形圆角度数-->
         <attr name="colorTick" format="color|reference"/><!--选中时勾的颜色-->
         <attr name="colorChecked" format="color|reference"/><!--选中时的背景色-->
         <attr name="colorUnchecked" format="color|reference"/><!--未选中时的背景色-->

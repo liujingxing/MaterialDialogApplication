@@ -66,6 +66,7 @@ class CheckView extends View implements Checkable {
     private float mScaleVal = 1.0f, mFloorScale = 1.0f;
     private int mWidth, mAnimDuration, mStrokeWidth;
     private int mCheckedColor, mUnCheckedColor, mFloorColor, mFloorUnCheckedColor;
+    private int mRadius;//矩形圆角度数
 
     private boolean mChecked;
     private boolean mTickDrawing;
@@ -98,6 +99,7 @@ class CheckView extends View implements Checkable {
         mCheckedColor = ta.getColor(R.styleable.CheckBox_colorChecked, COLOR_CHECKED);
         mUnCheckedColor = ta.getColor(R.styleable.CheckBox_colorUnchecked, COLOR_UNCHECKED);
         mStrokeWidth = ta.getDimensionPixelSize(R.styleable.CheckBox_strokeWidth, dp2px(getContext(), 0));
+        mRadius = ta.getDimensionPixelSize(R.styleable.CheckBox_radius, dp2px(getContext(), 3));
         mShape = ta.getInt(R.styleable.CheckBox_shape, 0);
         ta.recycle();
 
@@ -263,7 +265,7 @@ class CheckView extends View implements Checkable {
             canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, radius, mPaint);
         } else {
             RectF rectf = new RectF(mCenterPoint.x - radius, mCenterPoint.y - radius, mCenterPoint.x + radius, mCenterPoint.y + radius);
-            canvas.drawRoundRect(rectf, 5, 5, mPaint);
+            canvas.drawRoundRect(rectf, mRadius, mRadius, mPaint);
         }
     }
 
@@ -275,7 +277,7 @@ class CheckView extends View implements Checkable {
         } else {
             float scale = radius * mFloorScale;
             RectF rectf = new RectF(mCenterPoint.x - scale, mCenterPoint.y - scale, mCenterPoint.x + scale, mCenterPoint.y + scale);
-            canvas.drawRoundRect(rectf, 5, 5, mFloorPaint);
+            canvas.drawRoundRect(rectf, mRadius, mRadius, mFloorPaint);
         }
     }
 
@@ -347,7 +349,6 @@ class CheckView extends View implements Checkable {
             public void onAnimationUpdate(ValueAnimator animation) {
                 mScaleVal = (float) animation.getAnimatedValue();
                 mFloorColor = getGradientColor(mUnCheckedColor, mCheckedColor, 1 - mScaleVal);
-                postInvalidate();
             }
         });
         animator.start();
@@ -388,7 +389,6 @@ class CheckView extends View implements Checkable {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 mFloorScale = (float) animation.getAnimatedValue();
-                postInvalidate();
             }
         });
         floorAnimator.start();
