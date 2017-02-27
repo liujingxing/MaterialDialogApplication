@@ -34,7 +34,8 @@ public class CheckBox extends LinearLayout {
         super(context, attrs);
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER_VERTICAL);
-        setBackgroundResource(R.drawable.button);
+        if (getBackground() == null)
+            setBackgroundResource(R.drawable.button);
         mDefaultSize = dp2px(context, 10);
         initView(context, attrs);
     }
