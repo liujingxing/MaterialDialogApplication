@@ -74,6 +74,9 @@ public class CheckBox extends LinearLayout {
             @Override
             public void onClick(View v) {
                 mCheckView.toggle(true);
+                if (mListener != null) {
+                    mListener.onCheckedChanged(CheckBox.this, mCheckView.isChecked());
+                }
             }
         });
     }

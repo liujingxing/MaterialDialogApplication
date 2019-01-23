@@ -98,8 +98,8 @@ class CheckView extends View implements Checkable {
         mFloorColor = ta.getColor(R.styleable.CheckBox_colorUncheckedStroke, COLOR_FLOOR_UNCHECKED);
         mCheckedColor = ta.getColor(R.styleable.CheckBox_colorChecked, COLOR_CHECKED);
         mUnCheckedColor = ta.getColor(R.styleable.CheckBox_colorUnchecked, COLOR_UNCHECKED);
-        mStrokeWidth = ta.getDimensionPixelSize(R.styleable.CheckBox_strokeWidth, dp2px(getContext(), 0));
-        mRadius = ta.getDimensionPixelSize(R.styleable.CheckBox_radius, dp2px(getContext(), 3));
+        mStrokeWidth = ta.getDimensionPixelSize(R.styleable.CheckBox_strokeWidth, dp2px(getContext(), 2));
+        mRadius = ta.getDimensionPixelSize(R.styleable.CheckBox_radius, dp2px(getContext(), 2));
         mShape = ta.getInt(R.styleable.CheckBox_shape, 0);
         ta.recycle();
 
@@ -111,6 +111,8 @@ class CheckView extends View implements Checkable {
 
         mFloorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mFloorPaint.setStyle(Paint.Style.FILL);
+        mFloorPaint.setStrokeCap(Paint.Cap.ROUND);
+        mFloorPaint.setStrokeWidth(mStrokeWidth);
         mFloorPaint.setColor(mFloorColor);
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -231,9 +233,6 @@ class CheckView extends View implements Checkable {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         mWidth = getMeasuredWidth();
-        mStrokeWidth = (mStrokeWidth == 0 ? getMeasuredWidth() / 10 : mStrokeWidth);
-        mStrokeWidth = mStrokeWidth > getMeasuredWidth() / 5 ? getMeasuredWidth() / 5 : mStrokeWidth;
-        mStrokeWidth = (mStrokeWidth < 3) ? 3 : mStrokeWidth;
         mCenterPoint.x = mWidth / 2;
         mCenterPoint.y = getMeasuredHeight() / 2;
 
@@ -253,14 +252,14 @@ class CheckView extends View implements Checkable {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        drawBorder(canvas);
         drawCenter(canvas);
+        drawBorder(canvas);
         drawTick(canvas);
     }
 
     private void drawCenter(Canvas canvas) {
         mPaint.setColor(mUnCheckedColor);
-        float radius = (mCenterPoint.x - mStrokeWidth) * mScaleVal;
+        float radius = (mCenterPoint.x - mStrokeWidth / 2) * mScaleVal;
         if (mShape == CIRCLE) {
             canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, radius, mPaint);
         } else {
@@ -271,12 +270,18 @@ class CheckView extends View implements Checkable {
 
     private void drawBorder(Canvas canvas) {
         mFloorPaint.setColor(mFloorColor);
+        mFloorPaint.setStyle(isChecked() ? Paint.Style.FILL : Paint.Style.STROKE);
         int radius = mCenterPoint.x;
         if (mShape == CIRCLE) {
+            radius -= (mChecked ? 0 : mStrokeWidth / 2);
             canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, radius * mFloorScale, mFloorPaint);
         } else {
             float scale = radius * mFloorScale;
-            RectF rectf = new RectF(mCenterPoint.x - scale, mCenterPoint.y - scale, mCenterPoint.x + scale, mCenterPoint.y + scale);
+            float left = mCenterPoint.x - scale + (mChecked ? 0 : mStrokeWidth / 2);
+            float top = mCenterPoint.y - scale + (mChecked ? 0 : mStrokeWidth / 2);
+            float right = mCenterPoint.x + scale - (mChecked ? 0 : mStrokeWidth / 2);
+            float bottom = mCenterPoint.y + scale - (mChecked ? 0 : mStrokeWidth / 2);
+            RectF rectf = new RectF(left, top, right, bottom);
             canvas.drawRoundRect(rectf, mRadius, mRadius, mFloorPaint);
         }
     }
@@ -381,7 +386,7 @@ class CheckView extends View implements Checkable {
             }
         });
         animator.start();
-
+        if (mUnCheckedColor == Color.TRANSPARENT) return;
         ValueAnimator floorAnimator = ValueAnimator.ofFloat(1.0f, 0.8f, 1.0f);
         floorAnimator.setDuration(mAnimDuration);
         floorAnimator.setInterpolator(new LinearInterpolator());
